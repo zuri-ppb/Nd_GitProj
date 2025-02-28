@@ -1,0 +1,110 @@
+//user 实体
+entity User {
+  username String required unique minlength(3) maxlength(50)
+  email String required unique pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)
+  passwordHash String required
+  avatar String
+  level Integer required min(1)
+  experience Integer required min(0)
+  gold Integer required min(0)
+  gems Integer required min(0)
+  registrationDate ZonedDateTime required
+  lastLoginDate ZonedDateTime
+}
+//Care实体
+entity Card {
+  name String required
+  description TextBlob
+  rarity Rarity required
+  cardType CardType required
+  imageUrl String
+  manaCost Integer min(0)
+  attack Integer min(0)
+  health Integer min(0)
+  isActive Boolean required
+  releaseDate LocalDate
+}
+//卡牌
+entity Deck {
+  name String required
+  description String
+  creationDate ZonedDateTime required
+  lastModifiedDate ZonedDateTime required
+}
+//卡牌组
+entity DeckCard {
+  quantity Integer required min(1) max(3)
+}
+//收藏
+entity Collection {
+  quantity Integer required min(0)
+  acquisitionDate ZonedDateTime
+}
+//匹配
+entity Match {
+  startTime ZonedDateTime required
+  endTime ZonedDateTime
+  result MatchResult
+  playerScore Integer min(0)
+  opponentScore Integer min(0)
+}
+//交易
+entity Transaction {
+  amount Integer required
+  transactionDate ZonedDateTime required
+  transactionType TransactionType required
+  description String
+}
+//成就
+entity Achievement {
+  name String required
+  description String required
+  points Integer required min(0)
+  imageUrl String
+  unlockDate ZonedDateTime
+}
+//稀有度
+enum Rarity {
+  COMMON,
+  UNCOMMON,
+  RARE,
+  EPIC,
+  LEGENDARY
+}
+//卡类型
+enum CardType {
+  MINION,
+  SPELL,
+  WEAPON,
+  HERO
+}
+//匹配结果
+enum MatchResult {
+  WIN,
+  LOSS,
+  DRAW
+}
+//枚举交易类型
+enum TransactionType {
+  PURCHASE,
+  REWARD,
+  EXCHANGE
+}
+//一对多关系
+relationship OneToMany {
+  User{deck} to Deck{owner required}
+  User{match} to Match{player required}
+  User{transaction} to Transaction{user required}
+}
+//多对多关系
+relationship ManyToMany {
+  User{achievement} to Achievement{user}
+}
+//多对一关系
+relationship ManyToOne {
+  DeckCard{card required} to Card
+  DeckCard{deck required} to Deck
+  Collection{card required} to Card
+  Collection{user required} to User
+}
+
